@@ -23,19 +23,54 @@ What is the value of the first triangle number to have over five hundred divisor
 """
 
 import math
+import sys
+import functools
 
-def gen():
-    res = 0
+# n * (n + 1) < 2 * c
+# n > - 1 + sqrt(1 + 4 * 2 * c) / 2
+
+def is_prime(x, prime_list):
+    for n in prime_list:
+        if n > math.sqrt(x):
+            return True
+        if x % n == 0:
+            return False
+
+def decompose(x):
+    d = {}
+    for p in prime_list:
+        if x == 1:
+            break
+        while x % p == 0:
+            d[p] = d.get(p, 0) + 1
+            x = x // p
+    return d
+
+@functools.lru_cache(maxsize=None)
+def nb_divisors(x):
+    res = 1
+    for v in decompose(x).values():
+        res *= v + 1
+    return res
+
+def nb_divisors_triangle(x):
+    if x % 2 == 0:
+        return nb_divisors(x / 2) * nb_divisors(x + 1)
+    else:
+        return nb_divisors(x) * nb_divisors((x + 1) / 2)
+
+def gen_consecutive(nb):
     i = 1
-    while True:
-        res += i
+    while nb_divisors_triangle(i) < nb:
         i += 1
-        yield res
+    return i * (i + 1) / 2
 
-def find_divisors_number(x):
-    return 2*len([i for i in range(1, int(math.sqrt(x)))  if x % i == 0])
+if __name__ == '__main__':
+    prime_list = [2, 3, 5, 7]
+    last = prime_list[-1]
+    while len(prime_list) < 100:
+        last += 2
+        if is_prime(last, prime_list):
+            prime_list.append(last)
 
-for x in gen():
-    if find_divisors_number(x) > 500:
-        print(x)
-        break
+    print(int(gen_consecutive(int(sys.argv[1]))))
