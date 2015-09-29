@@ -17,16 +17,9 @@ in the same way?
 """
 
 def solve(size):
-    assert(size % 2 == 1)
-    size = (size - 1) // 2
-    res = count = 1
-    delta = 0
-    for _ in range(size):
-        delta += 2
-        for _ in range(4):
-            count += delta
-            res += count
-    return res
+    n = (size - 1) / 2
+    return 16 * (n * (n + 1) * (2 * n + 1) / 6) + \
+           4 * (n * (n + 1) / 2) + 4 * n + 1
 
 if __name__ == '__main__':
     assert(solve(5) == 101)
